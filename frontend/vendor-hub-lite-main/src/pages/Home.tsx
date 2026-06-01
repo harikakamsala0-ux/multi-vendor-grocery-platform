@@ -4,8 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ShoppingBag, Package, Users, TrendingUp } from 'lucide-react';
 import { categories } from '@/data/mockData';
 import heroBanner from '@/assets/hero-banner.jpg';
+import { useAuth } from '@/contexts/AuthContext';
+import { RecommendationsSection } from '@/components/RecommendationsSection';
 
 const Home = () => {
+  const { user } = useAuth();
   const features = [
     {
       icon: ShoppingBag,
@@ -67,6 +70,10 @@ const Home = () => {
         </div>
       </section>
 
+      {user?.role === 'customer' ? (
+        <RecommendationsSection userId={user.id} title="Picked for you" limit={8} />
+      ) : null}
+
       {/* Features Section */}
       <section className="py-20 bg-muted/30">
         <div className="container mx-auto px-4">
@@ -101,7 +108,7 @@ const Home = () => {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {categories.map((category) => (
-              <Link key={category.id} to={`/products?category=${category.id}`}>
+              <Link key={category.id} to={`/products?category=${encodeURIComponent(category.name)}`}>
                 <Card className="shadow-card hover:shadow-card-hover transition-base cursor-pointer group">
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-4">

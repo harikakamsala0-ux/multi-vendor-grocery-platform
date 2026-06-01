@@ -40,12 +40,14 @@ export interface VendorUser {
 }
 
 export const categories: Category[] = [
-  { id: '1', name: 'Fresh Vegetables', description: 'Farm-fresh organic vegetables', icon: '🥬' },
-  { id: '2', name: 'Fresh Fruits', description: 'Seasonal fruits delivered daily', icon: '🍎' },
-  { id: '3', name: 'Dairy Products', description: 'Fresh milk, cheese, and yogurt', icon: '🥛' },
-  { id: '4', name: 'Bakery', description: 'Freshly baked bread and pastries', icon: '🍞' },
-  { id: '5', name: 'Meat & Seafood', description: 'Premium quality meat and seafood', icon: '🥩' },
-  { id: '6', name: 'Beverages', description: 'Juices, soft drinks, and more', icon: '🥤' },
+  { id: 'Vegetables', name: 'Vegetables', description: 'Farm-fresh organic vegetables', icon: '🥦' },
+  { id: 'Fruits', name: 'Fruits', description: 'Seasonal fruits delivered daily', icon: '🍎' },
+  { id: 'Electronics', name: 'Electronics', description: 'Gadgets, audio, and accessories', icon: '📱' },
+  { id: 'Mobiles', name: 'Mobiles', description: 'Phones and mobile accessories', icon: '📞' },
+  { id: 'Bakery', name: 'Bakery', description: 'Bread, pastries, and baked goods', icon: '🥐' },
+  { id: 'Kitchen', name: 'Kitchen', description: 'Cookware and kitchen tools', icon: '🍳' },
+  { id: 'Clothes', name: 'Clothes', description: 'Fashion and apparel', icon: '👗' },
+  { id: 'Beauty', name: 'Beauty', description: 'Skincare and cosmetics', icon: '💄' },
 ];
 
 export const products: Product[] = [

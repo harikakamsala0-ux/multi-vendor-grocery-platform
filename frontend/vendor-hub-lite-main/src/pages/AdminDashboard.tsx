@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, Package, ShoppingBag, Store, TrendingUp, DollarSign } from "lucide-react";
+import { Users, Package, ShoppingBag, Store, TrendingUp, DollarSign, ShieldAlert } from "lucide-react";
 import { toast } from "sonner";
+import { resolveProductImageUrl } from "@/lib/resolveProductImage";
 
 const AdminDashboard = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
+  const [flaggedReviews, setFlaggedReviews] = useState<any[]>([]);
 
   // --------------------------
   // FETCH ALL BACKEND DATA
@@ -43,10 +45,23 @@ const AdminDashboard = () => {
     }
   };
 
+  const fetchFlaggedReviews = async () => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/reviews/admin/flagged/");
+      if (res.ok) {
+        const data = await res.json();
+        setFlaggedReviews(Array.isArray(data.reviews) ? data.reviews : []);
+      }
+    } catch {
+      /* optional */
+    }
+  };
+
   useEffect(() => {
     fetchUsers();
     fetchOrders();
     fetchProducts();
+    fetchFlaggedReviews();
   }, []);
 
   // --------------------------
@@ -136,11 +151,15 @@ const AdminDashboard = () => {
 
         {/* MAIN TABS */}
         <Tabs defaultValue="vendors" className="space-y-6">
-          <TabsList className="grid grid-cols-4 bg-muted">
+          <TabsList className="grid grid-cols-2 sm:grid-cols-5 bg-muted h-auto flex-wrap gap-1">
             <TabsTrigger value="vendors">Vendors</TabsTrigger>
             <TabsTrigger value="customers">Customers</TabsTrigger>
             <TabsTrigger value="orders">Orders</TabsTrigger>
             <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="flagged" className="gap-1">
+              <ShieldAlert className="h-3.5 w-3.5" />
+              Flagged reviews
+            </TabsTrigger>
           </TabsList>
 
           {/* ---------------------- */}
@@ -291,9 +310,9 @@ const AdminDashboard = () => {
                 {products.map((product) => (
                   <Card key={product._id} className="p-4 border">
                     <img
-                      src={product.image}
+                      src={resolveProductImageUrl(product)}
                       alt={product.name}
-                      className="w-full h-40 object-cover rounded"
+                      className="w-full h-40 object-cover rounded bg-muted"
                     />
 
                     <h3 className="font-semibold mt-2">{product.name}</h3>
@@ -307,6 +326,45 @@ const AdminDashboard = () => {
                     </div>
                   </Card>
                 ))}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="flagged">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ShieldAlert className="h-5 w-5 text-amber-600" />
+                  Fake / suspicious reviews
+                </CardTitle>
+                <CardDescription>
+                  Rule-based fraud signals (duplicate text, rating vs. sentiment mismatch, spam patterns).
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {flaggedReviews.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No flagged reviews right now.</p>
+                ) : (
+                  flaggedReviews.map((r) => (
+                    <Card key={r._id} className="p-4 border-amber-500/30 bg-amber-500/5">
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        <Badge variant="destructive">{r.fraud_risk ?? "flagged"}</Badge>
+                        {Array.isArray(r.fraud_flags)
+                          ? r.fraud_flags.map((f: string) => (
+                              <Badge key={f} variant="outline" className="text-xs">
+                                {f}
+                              </Badge>
+                            ))
+                          : null}
+                      </div>
+                      <p className="text-sm">
+                        <span className="font-medium">{r.customer_name}</span> →{" "}
+                        <span className="text-muted-foreground">{r.vendor_name}</span> · {r.rating}/5
+                      </p>
+                      <p className="text-sm mt-2 text-foreground">{r.comment || "—"}</p>
+                    </Card>
+                  ))
+                )}
               </CardContent>
             </Card>
           </TabsContent>

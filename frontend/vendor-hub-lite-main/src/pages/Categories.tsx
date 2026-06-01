@@ -4,8 +4,11 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { categoryOptions } from '@/data/categoriesList';
+import { useAuth } from '@/contexts/AuthContext';
+import { trackBehaviorEvent } from '@/lib/behavior';
 
 const Categories = () => {
+  const { user } = useAuth();
   const [products, setProducts] = useState<any[]>([]);
 
   // Fetch all products from backend
@@ -62,7 +65,16 @@ const Categories = () => {
                       {productCount} {productCount === 1 ? "product" : "products"}
                     </span>
 
-                    <Link to={`/products?category=${category.name}`}>
+                    <Link
+                      to={`/products?category=${encodeURIComponent(category.name)}`}
+                      onClick={() => {
+                        if (user?.role === 'customer') {
+                          trackBehaviorEvent(user.id, 'category_browse', {
+                            category: category.name,
+                          });
+                        }
+                      }}
+                    >
                       <Button variant="ghost" size="sm">
                         Browse
                         <ArrowRight className="h-4 w-4 ml-2" />
